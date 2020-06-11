@@ -1,3 +1,7 @@
+
+
+
+
 # Java学习总结
 
 ## 1.enum
@@ -1027,3 +1031,187 @@ CollectionUtils.isEmpty(list)
 6.判断集合是否相等
 
 CollectionUtils.isEqualCollection(listA, listB)
+
+## 9. 反射机制
+
+### 9.1 java反射机制的定义
+
+JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。
+
+Java反射机制主要提供了以下功能： 在运行时判断任意一个对象所属的类；在运行时构造任意一个类的对象；在运行时判断任意一个类所具有的成员变量和方法；在运行时调用任意一个对象的方法；生成动态代理。
+
+### 9.2 Class类
+
+如同我们定义的类一样，一个Class对象表示一个特定的类属性。Object类中的个体Class()方法将会返回一个Class类型的实例（我个人的理解Class就是一个表示类的类，Class类的每一个对象就是一个类；需要注意的是一个**Class对象实际上表示的是一个类型，而这个类型未必一定是一种类**。例如：int不是类，但int.class是一个Class类型的对象）。获得Class类的对象的方法有：
+
+```java
+package com.sankuai.learn.test.reflect;
+
+import com.sankuai.learn.entity.Student;
+import org.junit.jupiter.api.Test;
+
+/**
+ * @author dengquanliang
+ * @date 2020/6/11
+ */
+public class ReflectTest {
+
+  //获得Class类的对象的三种方法
+    @Test
+    public void test() throws ClassNotFoundException {
+        Student student = new Student();
+        //第一种
+        Class c1 = student.getClass();
+        Class<?> c2 = student.getClass();
+        //第二种
+        Class c3 = Class.forName("com.sankuai.learn.entity.Student");
+        Class<?> c4 = Class.forName("com.sankuai.learn.entity.Student");
+        //第三种
+        Class c5 = Student.class;
+        
+        System.out.println(c1.getName());
+        System.out.println(c2.getName());
+        System.out.println(c3.getName());
+        System.out.println(c4.getName());
+        System.out.println(c5.getName());
+    }
+}
+
+```
+
+输出：
+
+```
+com.sankuai.learn.entity.Student
+com.sankuai.learn.entity.Student
+com.sankuai.learn.entity.Student
+com.sankuai.learn.entity.Student
+com.sankuai.learn.entity.Student
+```
+
+### 9.3 用例
+
+```java
+ @Test
+    public void test1() throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        Student student = new Student();
+        Class targetClass = student.getClass();
+        Student student1 = (Student) targetClass.newInstance();
+
+        System.out.println(student1.getName());
+
+        /**
+         * 获取类中定义的所有方法
+         */
+        Method[] methods = targetClass.getMethods();
+        System.out.println("输出所有方法的name------------");
+        for(Method method : methods){
+            System.out.println(method.getName());
+        }
+
+        /**
+         * 获取指定方法并调用
+         */
+        System.out.println("获取指定方法并调用-------------");
+        Method publicMethod = targetClass.getDeclaredMethod("publicMethod", String.class);
+        publicMethod.invoke(student1,"hello");
+
+        /**
+         * 获取指定参数并对参数进行修改
+         */
+        System.out.println("获取指定参数并对参数进行修改-------------");
+        Field field = targetClass.getDeclaredField("name");
+        //为了对类中的参数进行修改我们取消安全检查
+        field.setAccessible(true);
+        field.set(student1, "deng");
+
+        /**
+         * 调用private方法
+         */
+        System.out.println("调用private方法-------------");
+        Method privateMethod = targetClass.getDeclaredMethod("privateMethod");
+        //为了调用private方法我们取消安全检查
+        privateMethod.setAccessible(true);
+        privateMethod.invoke(student1);
+    }
+```
+
+输出：
+
+```java
+lee
+输出所有方法的name------------
+equals
+toString
+hashCode
+getName
+setName
+setScore
+setAge
+getScore
+getAge
+builder
+publicMethod
+wait
+wait
+wait
+getClass
+notify
+notifyAll
+获取指定方法并调用-------------
+Student(name=lee, age=0, score=0.0)
+hello
+获取指定参数并对参数进行修改-------------
+调用private方法-------------
+name is :deng
+```
+
+### 9.4 利用反射检查类的结构
+
+在java.lang.reflect包中有三个类Field、Method和Constructor分别用于描述类的域、方法和构造器。这三个类都有一个叫做getName的方法，用来返回项目的名称。Field类有一个getType方法，用来返回描述域所属类型的Class对象。Method和Constructor类又能够报告参数类型的方法，Method类还有一个可以报告返回类型的方法。这三个类还有一个叫做getModifiers的方法，他将返回一个整型数值，用不同的位开关描述public和static这样的修饰符使用情况。另外，还可以利用java.lang.reflect包中的Modifier类的静态方法分析getModifiers返回的整型数值。
+
+Class类中的getFields、getMethods和getConstructors方法将分别返回类提供的public域、方法和构造器数组，其中包括父类的公有成员。Class类的getDeclaredFields、getDeclaredMethods和getDeclaredConstructors方法将返回类中声明的全部域、方法和构造器，其中包括私有和受保护成员，但不包括父类的成员。
+
+### 9.5 利用反射查看对象数据域的实际内容
+
+利用反射机制可以查看在编译时还不清除的对象域。
+
+查看对象域的关键方法是Field类中的get方法。如果f是一个Field类型的对象（例如：通过**getDeclaredFields**得到的对象），obj是某个包含f域的类的对象，f.get(obj)将返回一个对象，其值为obj的f域的当前值。
+
+反射机制的默认行为受限于java的访问控制。如果f域是一个私有域，可通过调用**f.setAccessible(true)**获取访问权限。
+
+**get方法的返回值是Object类型**，但是一个类中可能存在一些域属于int、double等类型而并不是Object类型。对于这个问题，可以使用Field类的getDouble方法，也可以调用get方法，反射机制将会自动将这个域打包到相应的对象包装器中。
+
+### 9.6 静态编译和动态编译
+
+- 静态编译：在编译时确定类型，绑定对象
+- 动态编译：运行时确定类型，绑定对象
+
+### 9.7 反射机制优缺点和应用场景
+
+- **优点：** 运行期类型的判断，动态加载类，提高代码灵活度。
+
+- **缺点：** 
+
+  1.性能瓶颈：反射相当于一系列解释操作，通知 JVM 要做的事情，性能比直接的 java 代码要慢很多。
+
+   2.安全问题，让我们可以动态操作改变类的属性同时也增加了类的安全隐患。
+
+**应用场景：**
+
+**反射是框架设计的灵魂。**
+
+在我们平时的项目开发过程中，基本上很少会直接使用到反射机制，但这不能说明反射机制没有用，实际上有很多设计、开发都与反射机制有关，例如模块化的开发，通过反射去调用对应的字节码；动态代理设计模式也采用了反射机制，还有我们日常使用的 Spring／Hibernate 等框架也大量使用到了反射机制。
+
+举例：
+
+1. 我们在使用 JDBC 连接数据库时使用 `Class.forName()`通过反射加载数据库的驱动程序；
+2. Spring 框架的 IOC（动态加载管理 Bean）创建对象以及 AOP（动态代理）功能都和反射有联系；
+3. 动态配置实例的属性；
+
+### 9.8 推荐
+
+- [Java反射使用总结](https://zhuanlan.zhihu.com/p/80519709)
+- [Reflection：Java 反射机制的应用场景](https://segmentfault.com/a/1190000010162647?utm_source=tuicool&utm_medium=referral)
+- [Java 基础之—反射（非常重要）](https://blog.csdn.net/sinat_38259539/article/details/71799078)
+
