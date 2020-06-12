@@ -1215,3 +1215,173 @@ Class类中的getFields、getMethods和getConstructors方法将分别返回类�
 - [Reflection：Java 反射机制的应用场景](https://segmentfault.com/a/1190000010162647?utm_source=tuicool&utm_medium=referral)
 - [Java 基础之—反射（非常重要）](https://blog.csdn.net/sinat_38259539/article/details/71799078)
 
+## 10 BigDecimal和BigInteger
+
+### 10.1 BigInteger
+
+在Java中，由CPU原生提供的整型最大范围是64位`long`型整数。使用`long`型整数可以直接通过CPU指令进行计算，速度非常快。
+
+`java.math.BigInteger`就是用来表示任意大小的整数。**`BigInteger`内部用一个`int[]`数组来模拟一个非常大的整数**：
+
+```java
+@Test
+    public void test(){
+        BigInteger bi = new BigInteger("3");
+        System.out.println(bi.pow(4));
+        BigInteger bi1 = new BigInteger("1234");
+        System.out.println(bi1.pow(10));        //10次方
+    }
+```
+
+```java
+ @Test
+    public void testAdd(){
+        BigInteger bi1 = new BigInteger("123");
+        BigInteger bi2 = new BigInteger("341241");
+        BigInteger sum = bi1.add(bi2);
+        System.out.println(sum);
+        //System.out.println(bi1 + " " + sum + " " + bi2);
+        long a = sum.longValue();
+        System.out.println(a);
+        long b = sum.longValueExact();    //超出long型的范围，会抛出ArithmeticException
+        System.out.println(b);
+    }
+```
+
+如果`BigInteger`表示的范围超过了基本类型的范围，转换时将丢失高位信息，即结果不一定是准确的。如果需要准确地转换成基本类型，可以使用`intValueExact()`、`longValueExact()`等方法，在转换时如果超出范围，将直接抛出`ArithmeticException`异常。
+
+**小结**
+
+`BigInteger`用于表示任意大小的整数；
+
+`BigInteger`是**不变类**，并且继承自`Number`；
+
+将`BigInteger`转换成基本类型时可使用`longValueExact()`等方法保证结果准确。
+
+### 10.2 BigDecimal
+
+#### **10.2.1 应用场景**
+
+大多数的商业计算中，一般采用java.math.BigDecimal类来进行精确计算。比如货币
+
+#### **10.2.2 概述**
+
+BigDecimal由两部分组成，整数部分BigInteger, scale表示小数位数。BigDecimal所创建的是对象，故我们不能使用传统的+、-、*、/等算术运算符直接对其对象进行数学运算，而必须调用其相对应的方法。
+
+#### **10.2.3 构造函数**
+
+1.BigDecimal(int)
+
+创建一个具有参数所指定整数值的对象
+
+2.BigDecimal(double)            //不推荐使用，精度不能保证
+
+创建一个具有参数所指定双精度值的对象
+
+3.BigDecimal(long)
+
+创建一个具有参数所指定长整数值的对象
+
+4.BigDecimal(String)             //推荐使用
+
+创建一个具有参数所指定以字符串表示的数值的对象
+
+```java
+ @Test
+    public void test(){
+        BigDecimal bd1 = new BigDecimal("123.321");
+        BigDecimal bd2 = BigDecimal.ZERO;
+        BigDecimal bd3 = BigDecimal.ONE;
+        BigDecimal bd4 = BigDecimal.TEN;
+        //保留4位小数，四舍五入2324.2142
+        BigDecimal bd5 = new BigDecimal("2324.214214").setScale(4, RoundingMode.HALF_UP);
+        double d = 123.2423;
+        BigDecimal bd6 = new BigDecimal(d);    //不推荐使用，精度不能保证
+        BigDecimal bd7 = BigDecimal.valueOf(d);   //推荐使用
+        System.out.println(bd1);
+        System.out.println(bd2);
+        System.out.println(bd3);
+        System.out.println(bd4);
+        System.out.println(bd5);
+        System.out.println(bd6);
+        System.out.println(bd7);
+    }
+```
+
+输出：
+
+```java
+123.321
+0
+1
+10
+2324.2142
+123.2423000000000001818989403545856475830078125         //精度无法保证
+123.2423
+```
+
+#### **10.2.4 方法**
+
+- add(BigDecimal) ：BigDecimal对象中的值相加，然后返回这个对象
+- subtract(BigDecimal) ：BigDecimal对象中的值相减，然后返回这个对象
+- multiply(BigDecimal) ：BigDecimal对象中的值相乘，然后返回这个对象
+- divide(BigDecimal) ：BigDecimal对象中的值相除，然后返回这个对象
+- toString() ：将BigDecimal对象的数值转换成字符串
+- doubleValue() ：将BigDecimal对象中的值以双精度数返回
+- floatValue() ：将BigDecimal对象中的值以单精度数返回
+- longValue() ：将BigDecimal对象中的值以长整数返回
+- intValue() ：将BigDecimal对象中的值以整数返回。
+
+#### **10.2.5 格式化和四舍五入**
+
+```java
+// 格式化：保留2为小数
+DecimalFormat df = new DecimalFormat("#.##");
+// 四舍五入，默认五舍六入
+df.setRoundingMode(RoundingMode.HALF_UP);
+```
+
+ **舍入模式**
+
+- **RoundingMode.CEILNG**：向正无限大方向舍入的舍入模式。如果结果为正，则舍入行为类似于 **RoundingMode.UP**；如果结果为负，则舍入行为类似于 **RoundingMode.DOWN**
+
+```java
+5.5  =>  6 
+1.1  =>  2
+-1.0  =>  -1 
+-2.5  =>  -2
+```
+
+- **RoundingMode.DOWN**：向零方向舍入的舍入模式。从不对舍弃部分前面的数字加 1（即截尾）。注意，此舍入模式始终不会增加计算值的绝对值
+
+```java
+5.5  =>  5 
+1.1  =>  1 
+-1.0  =>  -1 
+-1.6  =>  -1  
+```
+
+- **RoundingMode.FLOOR**：向负无限大方向舍入的舍入模式。如果结果为正，则舍入行为类似于 **RoundingMode.DOWN**；如果结果为负，则舍入行为类似于 **RoundingMode.UP**
+
+```java
+5.5  =>  5 
+2.3  =>  2
+1.0  =>  1 
+-1.1  =>  -2 
+-2.5  =>  -3 
+```
+
+- **RoundingMode.HALF_DOWN** ：五舍六入
+- **RoundingMode.HALF_UP** ：四舍五入
+
+#### 10.2.6 比较BigDecimal
+
+在比较两个`BigDecimal`的值是否相等时，要特别注意，使用`equals()`方法不但要求两个`BigDecimal`的值相等，还要求它们的`scale()`相等：
+
+必须使用`compareTo()`方法来比较，它根据两个值的大小分别返回负数、正数和`0`，分别表示小于、大于和等于。
+
+#### 10.2.7 小结
+
+- `BigDecimal`用于表示精确的小数，常用于财务计算；
+- 比较`BigDecimal`的值是否相等，必须使用`compareTo()`而不能使用`equals()`。
+- `BigDecimal`和BigInteger一样都是不可变类
