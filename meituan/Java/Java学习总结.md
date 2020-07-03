@@ -711,6 +711,119 @@ System.out.println(l); //[b_123, b#632, c+342, d_123]
 
 `skip`返回丢弃了前n个元素的流，如果流中的元素小于或者等于n，则返回空的流。
 
+#### 5.4.8 flatMap
+
+**map 生成的是个 1:1 映射，每个输入元素，都按照规则转换成为另外一个元素**。还有一些场景，是**一对多映射**关系的，这时需要 flatMap。
+
+例1：
+
+```java
+@Test
+    public void testFlatMap(){
+        // 将集合中的字符串中单词提取出来，不考虑特殊字符
+        List<String> words = Arrays.asList("hello c++", "hello java", "hello python");
+        List<String[]> list = words.stream()
+                .map(word -> word.split(" "))
+                .collect(Collectors.toList());
+        List<String> result = words.stream()
+                // 将单词按照空格切合，返回Stream<String[]>类型的数据
+                .map(word -> word.split(" "))
+                // 将Stream<String[]>转换为Stream<String>
+                .flatMap(Arrays::stream)
+                // 去重
+                .distinct()
+                .collect(Collectors.toList());
+        list.forEach(s -> {
+            for(String s1 : s){
+                System.out.print(s1 + " ");
+            }
+            System.out.println();
+        });
+        System.out.println(result);
+    }
+```
+
+输出：
+
+```
+hello c++ 
+hello java 
+hello python 
+[hello, c++, java, python]
+```
+
+例二：
+
+```java
+ @Test
+    public void testFlatMap1(){
+        // 初始化测试数据
+        List<String> hobby1 = Arrays.asList("java", "c", "音乐");
+        List<String> hobby2 = Arrays.asList("c++", "c", "游戏");
+        User user1 = new User(1, "张三", hobby1);
+        User user2 = new User(2, "李四", hobby2);
+        ArrayList<User> users = new ArrayList<>();
+        users.add(user1);
+        users.add(user2);
+
+        // 将集合中每个用户的爱好进行计算，取并集
+        List<String> result = users.stream()
+                .map(user -> user.hobby)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
+         List<String> result1 = users.stream()
+                .flatMap(user -> user.hobby.stream())
+                .distinct()
+                .collect(Collectors.toList());
+        System.out.println(result);
+        System.out.println(result1);
+    }
+
+    static class User {
+        int id;
+        String name;
+        List<String> hobby;
+
+        public User(int id, String name, List<String> hobby) {
+            this.id = id;
+            this.name = name;
+            this.hobby = hobby;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            User user = (User) o;
+            return id == user.id &&
+                    Objects.equals(name, user.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
+
+        @Override
+        public String toString() {
+            return "User{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
+    }
+```
+
+输出：
+
+```
+[java, c, 音乐, c++, 游戏]
+[java, c, 音乐, c++, 游戏]
+```
+
+
+
 ### 5.5 终点操作 terminal operations
 
 #### 5.5.1 Match
