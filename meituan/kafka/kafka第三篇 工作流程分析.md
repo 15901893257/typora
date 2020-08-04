@@ -10,7 +10,7 @@ producer 采用推(push)模式将消息发布到 broker，每条消息都被追�
 
 消息发送时都被发送到一个 topic，其本质就是一个目录，而 topic 是由一些 Partition Logs(分区日志)组成，其组织结构如下图所示:  	
 
-<img src="/Users/dengquanliang/Library/Application Support/typora-user-images/image-20200804152550563.png" alt="image-20200804152550563" style="zoom:50%;" />
+<img src="/Users/dengquanliang/typora/meituan/kafka/kafka第三篇 工作流程分析.assets/image-20200804152550563.png" alt="image-20200804152550563" style="zoom:50%;" />
 
 我们可以看到，每个 Partition 中的消息都是有序的，生产的消息被不断追加到Partition log 上，其中的每一个消息都被赋予了一个唯一的 offset 值。
 
