@@ -8,7 +8,7 @@ Apache Kafka是由LinkedIn采用[Scala](https://en.wikipedia.org/wiki/Scala_(pro
 
  Kafka是一种分布式的，基于发布/订阅的消息系统，主要特性如下：
 
-<img src="https://github.com/15901893257/typora/blob/master/meituan/kafka/kafka%E7%AC%AC%E4%BA%8C%E7%AF%87%20kafka%E6%A6%82%E8%BF%B0.assets/image-20200728115407048.png" />
+<img src="https://github.com/15901893257/typora/blob/master/meituan/kafka/kafka%E7%AC%AC%E4%BA%8C%E7%AF%87%20kafka%E6%A6%82%E8%BF%B0.assets/image-20200728115407048.png" style="zoom:50%;"/>
 
 ## 3.kafka架构设计
 
