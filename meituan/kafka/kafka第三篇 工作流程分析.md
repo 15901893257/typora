@@ -33,7 +33,7 @@ producer 采用推(push)模式将消息发布到 broker，每条消息都被追�
 
 producer 写入消息流程如下:
 
-![image-20200804152640052](/Users/dengquanliang/Library/Application Support/typora-user-images/image-20200804152640052.png)
+![image-20200804152640052](https://github.com/15901893257/typora/blob/master/meituan/kafka/kafka%E7%AC%AC%E4%B8%89%E7%AF%87%20%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90.assets/image-20200804152550563.png)
 
 1)producer 先从 zookeeper 的 "/brokers/.../state"节点找到该 partition 的 leader
 2)producer 将消息发送给该 leader
