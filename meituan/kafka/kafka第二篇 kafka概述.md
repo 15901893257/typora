@@ -16,7 +16,7 @@ Apache Kafka是由LinkedIn采用[Scala](https://en.wikipedia.org/wiki/Scala_(pro
 
  一个最基本的架构是生产者发布一个消息到Kafka的一个Topic ，该Topic的消息存放于的Broker中，消费者订阅这个Topic，然后从Broker中消费消息，下面这个图可以更直观的描述这个场景：
 
-<img src="/Users/dengquanliang/typora/meituan/kafka/kafka第二篇 kafka概述.assets/image-20200728115508786.png" alt="image-20200728115508786" style="zoom:50%;" />
+<img src="/Users/dengquanliang/typora/meituan/kafka/kafka第二篇 kafka概述.assets/image-20200728115407048.png" alt="image-20200728115407048" style="zoom:50%;" />
 
 上图所示的架构分为三部分：Producer、Kafka Broker、Consumer Group，它们分别运行在不同的节点，下面概括介绍一下Kafka一些设计思想：
 
