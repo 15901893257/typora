@@ -33,7 +33,7 @@ producer 采用推(push)模式将消息发布到 broker，每条消息都被追�
 
 producer 写入消息流程如下:
 
-![image-20200804152640052](/Users/dengquanliang/Library/Application Support/typora-user-images/image-20200804152640052.png)
+![image-20200804152640052](/Users/dengquanliang/typora/meituan/kafka/kafka第三篇 工作流程分析.assets/image-20200804152640052.png)
 
 1)producer 先从 zookeeper 的 "/brokers/.../state"节点找到该 partition 的 leader
 2)producer 将消息发送给该 leader
@@ -47,7 +47,7 @@ producer 写入消息流程如下:
 物理上把topic分成一个或多个patition(对应 server.properties 中的num.partitions=3配置)，每个 patition 物理上对应一个文件夹(该文件夹存储该 patition 的所有消息和索引文
 件)，如下: 	   	 		 		 	 	 		 
 
-![image-20200804152720337](/Users/dengquanliang/Library/Application Support/typora-user-images/image-20200804152720337.png)
+![image-20200804152720337](/Users/dengquanliang/typora/meituan/kafka/kafka第三篇 工作流程分析.assets/image-20200804152720337.png)
 
 ### 2.2 存储策略
 
@@ -59,7 +59,7 @@ producer 写入消息流程如下:
 
 ### 2.3 Zookeeper存储结构
 
-![image-20200804152741520](/Users/dengquanliang/Library/Application Support/typora-user-images/image-20200804152741520.png)
+![image-20200804152741520](/Users/dengquanliang/typora/meituan/kafka/kafka第三篇 工作流程分析.assets/image-20200804152741520.png)
 
 注意:producer 不在 zk 中注册，消费者在 zk 中注册。
 
@@ -96,7 +96,7 @@ kafka 提供了两套 consumer API:高级 Consumer API 和低级 Consumer API。
 
 ### 3.3 消费者组
 
-![image-20200804152810969](/Users/dengquanliang/Library/Application Support/typora-user-images/image-20200804152810969.png)
+![image-20200804152810969](/Users/dengquanliang/typora/meituan/kafka/kafka第三篇 工作流程分析.assets/image-20200804152810969.png)
 
 消费者是以 consumer group 消费者组的方式工作，由一个或者多个消费者组成一个组，共同消费一个 topic。每个分区在同一时间只能由 group 中的一个消费者读取，但是多个 group可以同时消费这个 partition。在图中，有一个由三个消费者组成的 group，有一个消费者读取主题中的两个分区，另外两个分别读取一个分区。某个消费者读取某个分区，也可以叫做某个消费者是某个分区的拥有者。
 
